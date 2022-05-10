@@ -34,11 +34,13 @@ we can create arguments
 
 for example
 */
+(
 z = {
 arg freq = 440, amp = 1;
 var sig;
-sig = SinOsc.ar(freq) * amp;
+sig = SinOsc.ar(freq!2) * amp;
 }.play;
+)
 /*
 we can now also run set commands on z to create the equivalent of presets for our synth
 */
@@ -130,6 +132,89 @@ x = {
 --DUP METHOD!!
 this is a great shorthand in SC, essentially it returns an array of ur given number
 */
-x = {SinOsc.ar(400.dup(2))}.play; //this is the quickest.
+x = {SinOsc.ar(400.dup(2))}.play;
+x = {SinOsc.ar(400!2)}.play; //also works
 /*
 
+##ITERATION
+we've already looked a fairbit on iteration with dup, and how we create two synths with arrays
+all arrays have member functions we can use for various iterative operations.
+*/
+(
+[1,3,5,6,10,13].do{ //here we declare a function to run at each iteration. arg names are seemingly default ones that run in conjuction with array member functions.
+	arg item, count;
+	[count, item.squared].postln; //we can run .collect(_.squared) to automatically square & print these
+}
+)
+/*
+##Signal ROUTING
+between different synthdefs we may wish to make our code/audioenvironment more modular and route in and out between different objects. to do this supercollider provides us with routing capable UGENS, which we should use within our synthdef.
+*/
+(
+SynthDef.new(\blip, {
+	arg out;
+	var freq, trig, sig;
+	freq = LFNoise0.kr(3).exprange(300,1200).round(300);
+	sig = SinOsc.ar(freq) * 0.25;
+	trig = Dust.kr(2);
+	sig = sig * EnvGen.kr(Env.perc(0.01,0.2), trig);
+	Out.ar(out, sig);
+}).add;
+SynthDef.new(\reverb, {
+	arg in, out=0;
+	var sig;
+	sig = In.ar(in, 1);
+	sig = FreeVerb.ar(sig, 0.5, 0.2, 0.9, 0.2)!2;
+	Out.ar(out, sig);
+}).add;
+)
+
+(
+y = Synth.new(\reverb, [\in, 6]);
+x = Synth.new(\blip, [\out, 6]);
+)
+
+//also abit safer, sc can handle bus sends numerically for us, and we should in good practice use this to avoid conflicts with hardware limitations
+(
+~reverbBus = Bus.audio(s, 1);
+//order of execution is crucial, we must create the input signal before the output signal.
+y = Synth.new(\reverb, [\in, ~reverbBus]);
+x = Synth.new(\blip, [\out, ~reverbBus]);
+)
+
+(
+~sourceGroup = Group.new;
+~fxGroup = Group.after(~sourceGroup);
+
+//use of groups allows us to failproof the order of execution by allocating necessary memory prior to code execution in which sound should be outputted.
+y = Synth.new(\reverb, [\in, ~reverbBus], ~fxGroup);
+x = Synth.new(\blip, [\out, ~reverbBus], ~sourceGrp);
+)
+/*
+##GROUPS
+groups allow us to safeproof from errors regarding order of execution, onwards of this we can use groups to affect parameters of all instances of a synthdef within the group.
+*/
+(
+SynthDef.new(\groupTest, {
+	arg freq = 440;
+	var sig,env;
+	env = EnvGen.kr(
+		Env.perc(0.01,5, 1, -2),
+		doneAction:2);
+	sig = SinOsc.ar(freq!2);
+	sig = sig * env;
+	Out.ar(0, sig);
+}).add;
+)
+
+
+~groupTestGrp = Group.new;
+(
+8.do{
+	Synth.new(\groupTest, [\fund, 80], ~groupTestGrp);
+}
+)
+
+//tada!
+~groupTestGrp.set(\freq, 220);
+/*

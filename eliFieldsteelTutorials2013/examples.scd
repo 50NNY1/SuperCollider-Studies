@@ -25,3 +25,32 @@ x.set(\fund, 30)
 x.set(\maxPartial, 100)
 
 x.free;
+
+//excercise of iteration techniques in SC, but with sound!
+(
+SynthDef.new(\iter, {
+	arg freq=40;
+	var temp, sum, env;
+	env = EnvGen.kr(
+		Env.perc(0.01,5, 1, -2),
+		doneAction:2);
+	sum = 0;
+	40.do{ //forloop i < 10
+		temp = VarSaw.ar(
+			freq * {Rand(0.98, 1.02)}!2, //only 2 frequencys generated, because this ugen is audio aware(?) it knows to split these between our 2 audio channels?
+			{Rand(0.0, 1.0)}!2,
+			{Rand(0.005,0.05)}!2
+		);
+		sum = sum + temp;
+	};
+	sum = sum * 0.2 * env;
+	Out.ar(0, sum);
+}).add;
+)
+
+(
+[400, 80, 40, 600].do{
+	arg midiNote;
+	Synth.new(\iter, [\freq, midiNote]);
+}
+)
