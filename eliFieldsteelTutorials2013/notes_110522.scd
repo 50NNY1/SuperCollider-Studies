@@ -35,4 +35,18 @@ MIDIDef.noteOn (\noteontest, {"KeyDown.postln"}); simple enough right, mididef h
 all mididef listener functions pass our defined function multiple arguements
 
 for example, MIDIdef.noteOn returns arg vel, nn, chan, src (nn is note number, chan is midi channel)
+
+##EVENTS/Patterns
+Pbind, a class used to create sequences, used in conjunction with subclasses like Pseq to create sequences, lots of predefined arguements exist here, i.e \instrument, where we would plug in a synthdef, this handles synth instantiation so no need for Synth.new, we have \dur for our sequencing, this defines the length of each step (on and off times). \freq for pitches, we can also use \midinote as this is for frequencies and will automatically be plugged into the synth instantiation to get pitches
+
+--in conjuction with buffers,
+we can do some pretty sweet idm-y drums, we store Pathnames as keys in a dictionary.
+
+create a synthdef which plays a buffer, buffer should be an arguement here,
+and in a pbind we can set \dur to a random member of this dictionary (note: key must be specified for this to work as expected)
+
+also ! in patterns we can use probability weighting with Pwrand.
 */
+Pwrand([sound1, sound2, sound3], [0.8, 0.2, 0.3].normalizeSum); //normalize sum rounds all these to add up to 1.
+/*
+
