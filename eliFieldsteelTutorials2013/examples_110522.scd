@@ -54,11 +54,11 @@ Pdef(
 	\sinepat,
 	Pbind(
 		\instrument, \patternTest,
-		\dur, Pwhite(0.05, 0.5, inf),
-		\midinote, Pseq([30],inf),
-		\harmonic, Pexprand(1, 20, inf).round.trace,
-		\atk, Pwhite(0.2,0.4,inf),
-		\rel, Pwhite(0.5, 1.0, inf),
+		\dur, Pwhite(0.05, 0.6, inf),
+		\midinote, Pseq([35],inf),
+		\harmonic, Pexprand(1, 10, inf).round.trace,
+		\atk, Pwhite(0.02,0.05,inf),
+		\rel, Pwhite(2, 5, inf),
 		\amp, Pkey(\harmonic).reciprocal * 0.3,
 		\pan, Pwhite(0.8, -0.8, inf),
 	);
@@ -92,13 +92,35 @@ d.add(\hat ->
 )
 
 (
+//synth def for pbind to use
 SynthDef.new(\bufPlay, {
 	arg buf=0, rate=1, amp=1;
 	var sig;
 	sig = PlayBuf.ar(2, buf, BufRateScale.ir(buf) * rate, doneAction:2);
 	sig = sig*amp;
 	Out.ar(0, sig);
-})
+}).add;
+)
+
+(
+Pdef(\rhy,
+	Pbind(
+
+		\instrument, \bufPlay,
+		\dur, Pseq([1/16], inf),
+		\stretch, 60/128 * 4,
+		\buf, Pseq(
+			[
+				Prand(d[\kick], 1),
+				Pwrand([d[\snare][0],d[\hat][0]],[3,10], 7),
+				Prand(d[\snare], 1),
+				Pwrand([d[\snare][0], d[\hat][0]], [0.3, 0.7], 7)
+			], inf
+		),
+		\rate, Pexprand(0.8, 10, inf),
+		\amp, 0.3,
+	);
+).play;
 )
 
 

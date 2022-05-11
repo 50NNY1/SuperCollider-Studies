@@ -48,5 +48,18 @@ and in a pbind we can set \dur to a random member of this dictionary (note: key 
 also ! in patterns we can use probability weighting with Pwrand.
 */
 Pwrand([sound1, sound2, sound3], [0.8, 0.2, 0.3].normalizeSum); //normalize sum rounds all these to add up to 1.
+[0.8, 0.2, 0.3].sum
+a = [0.8,0.2,0.3].normalizeSum
+a.sum
 /*
+we can also, and should make extensive use of the ability to nest patterns, these are simple, it essentially concatenates patterns per step we specify.
+*/
+Pseq([
+	Prand(sounds[\kicks], 1),
+	Prand(sounds[\hats], 7),
+	Prand(sounds[\snares], 1),
+	Prand(sounds[\hats], 7)
+])
+/*
+
 

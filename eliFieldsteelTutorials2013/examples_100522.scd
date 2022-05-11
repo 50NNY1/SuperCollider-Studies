@@ -50,7 +50,7 @@ SynthDef.new(\iter, {
 
 (
 [400, 80, 40, 600].do{
-	arg midiNote;
+	arg middiNote;
 	Synth.new(\iter, [\freq, midiNote]);
 }
 )
