@@ -31,7 +31,7 @@ w.alwaysOnTop = true;
 	if(x.isPlaying)
 	{x.set(\freq, sliderFreq)};
 	sliderFreq.postln;
-	~freqNumBox.value_(sliderFreq);
+	~freqNumBox.value_(obj.value.linexp(0,1,20, 20000));
 });
 
 ~button = Button.new(w, Rect(220,20,50,30)).states_([
@@ -61,22 +61,4 @@ w.alwaysOnTop = true;
 });
 
 ~freqNumBox = NumberBox(w, Rect(20, 60, 30,20))
-.value_(100)
-.clipLo(20)
-.clipHi(20000);
-)
-
-//LISTENERS
-(
-~knob
-~slider.action_({ //create listener
-	arg obj; //interprets as gui object instance, represents slider here
-	var sliderFreq;
-	sliderFreq = obj.value.linexp(0,1,20, 20000);
-	if(x.isPlaying)
-	{x.set(\freq, sliderFreq)};
-	sliderFreq.postln;
-	~freqNumBox.value_(sliderFreq);
-});
-~button;
 )
